@@ -1,0 +1,61 @@
+services:
+  mongo:
+    image: mongo:4.4.6
+    container_name: mongo_container
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./mongo_data:/data/db
+    networks:
+      - mynetwork
+    logging:
+      driver: "none"
+
+  fast_api:
+    container_name: aflot
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/api
+      - ./models:/models
+      - ./schemas:/schemas
+    x-develop:
+      watch:
+        - action: sync
+          path: ./api
+          target: /api
+        - action: rebuild
+          path: ./api
+          target: /api
+    networks:
+      - mynetwork
+    depends_on:
+      - mongo
+
+  starlette_admin:
+    container_name: starlette_admin
+    build:
+      context: .
+      dockerfile: ./Dockerfile_admin
+    ports:
+      - "8001:8001"
+    networks:
+      - mynetwork
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:
+
+networks:
+  mynetwork:
+    driver: bridge
