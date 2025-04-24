@@ -8,7 +8,7 @@ class OffersSailor(BaseModel):
     id: PydanticObjectId
     position: str
     date_of_departure: date
-    ship_name: str
+    vessel_name: str
     salary: str
     contract_duration: str
 
@@ -35,7 +35,7 @@ class OfferID(BaseModel):
     salary: str
     date_of_departure: Optional[date] = date.today()
     contract_duration: str
-    ship_name: str
+    vessel_name: str
     imo: Optional[str] = None
     ship_type: str
     year_built: int

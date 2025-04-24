@@ -9,42 +9,27 @@ from api.yookassa.request import create_payment as get_url
 router = APIRouter()
 
 
-@router.get("/tariffs/company", status_code=status.HTTP_200_OK, response_model=List[company_tariffs],
-            summary="Тарифы компании")
+@router.get("/tariffs/company", summary="Тарифы компании")
 async def get_tariffs_company():
     try:
 
         tariffs = await company_tariffs.find().to_list()
 
-        if not tariffs:
-            raise HTTPException(detail="No tariffs found", status_code=status.HTTP_404_NOT_FOUND)
-
-        return tariffs
+        return {"data": tariffs}
 
     except HTTPException as e:
 
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.get("/tariffs/sailor", status_code=status.HTTP_200_OK, summary="Тарифы моряка")
-async def get_tariffs_swims():
+@router.get("/tariffs/sailor", summary="Тарифы моряка")
+async def get_tariffs_sailor():
     try:
-
-        data = []
 
         tariffs = await swims_tariffs.find().to_list()
 
-        if not tariffs:
-            raise HTTPException(detail="No tariffs found", status_code=status.HTTP_404_NOT_FOUND)
+        return {"data": tariffs}
 
-        data.append(tariffs)
-        descriptions = await description_tariffs.find().to_list()
-
-        if not descriptions:
-            raise HTTPException(detail="No descriptions found", status_code=status.HTTP_404_NOT_FOUND)
-
-        data.append(descriptions)
-        return data
     except HTTPException as e:
 
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)

@@ -3,20 +3,28 @@ from starlette import status
 from models.news import news_model
 from beanie import PydanticObjectId
 
+import math
 
 router = APIRouter()
 
 
 @router.get('/news', status_code=status.HTTP_200_OK, summary="Страница новостей")
-async def news_get(page: int = 1, page_size: int = 10):
+async def news_get(page: int = 1, page_size: int = 5):
     try:
 
         skip = (page - 1) * page_size
-        limit = page_size
 
-        total_news = await news_model.find().skip(skip).limit(limit).to_list()
+        total_news = await news_model.find().count()
+        total_pages = math.ceil(total_news / page_size)
+        news = await news_model.find().skip(skip).limit(page_size).to_list()
 
-        return total_news
+
+        data = {
+            "news": news,
+            "total_pages": total_pages,
+            "current_page": page
+        }
+        return data
     except HTTPException as e:
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 

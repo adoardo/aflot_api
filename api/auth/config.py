@@ -88,3 +88,20 @@ async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)):
         return user
     else:
         raise HTTPException(status_code=400, detail="User not found")
+
+
+async def get_current_user_for_socket(token: Optional[str] = Depends(oauth2_scheme)):
+    if token is None:
+        return None
+
+    service = AuthServices()
+    decoded_data = verify_jwt_token(token)
+
+    if not decoded_data:
+        return "Invalid token"
+
+    user = await service.find_user(decoded_data['sub'])
+    if user:
+        return user
+    else:
+        return "User not found"

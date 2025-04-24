@@ -1,20 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import company_model, auth, user_model, navy
 from beanie import PydanticObjectId
-from models.jobs import ship as ShipModel
+from models.vacancy import vacancy as VacancyModel
 from starlette import status
 from api.auth.config import get_current_user
 from typing import Annotated, Optional
 from schemas.vacancies_company.user_resume import Resume
 from typing import List
-from .schemas import (Ship, ShipRead, VacanciesResponse, ResponseCount, Vacancies,
-                      ResponseNavySchemas, CompanyNavySchemas, NavySchemas)
+from .schemas import (VacancySchemas, VacancyRead, VacanciesResponse, ResponseCount,
+                      ResponseNavySchemas, NavySchemas)
 
 router = APIRouter()
 
 
 @router.get('/create-vacancies', status_code=status.HTTP_200_OK,
-            summary="Возвращается судна компании и судна МОРСКОЙ ФЛОТ")
+            summary="Возвращает судна компании и судна МОРСКОЙ ФЛОТ")
 async def get_information_vacancy(current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
@@ -43,7 +43,7 @@ async def get_information_vacancy(current_user: Optional[dict] = Depends(get_cur
 
         for nav in company_navy:
 
-            list_company.append(CompanyNavySchemas(**nav.dict()))
+            list_company.append(NavySchemas(**nav.dict()))
 
         navy_site = await navy.find_all().to_list()
 
@@ -59,9 +59,9 @@ async def get_information_vacancy(current_user: Optional[dict] = Depends(get_cur
         return HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post("/create-vacancies", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
+@router.post("/create-vacancies", response_model=VacancyRead, status_code=status.HTTP_201_CREATED,
              summary="Создать вакансию")
-async def create_vacancies_by_company(jobs_create: Ship,
+async def create_vacancies_by_company(jobs_create: VacancySchemas,
                                       current_user: Annotated[dict, Depends(get_current_user)]):
     try:
         if current_user is None or current_user['role'] == "Моряк":
@@ -74,8 +74,7 @@ async def create_vacancies_by_company(jobs_create: Ship,
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
         company = await company_model.get(company_info.resumeID)
-        jobs_create.status = 'активная вакансия'
-        new_vacancy = ShipModel(**jobs_create.dict())
+        new_vacancy = VacancyModel(**jobs_create.dict())
 
         await new_vacancy.create()
 
@@ -106,11 +105,11 @@ async def get_company_vacancies(current_user: Annotated[dict, Depends(get_curren
         vacancies_info = []
 
         for vacancy in vacancies:
-            vacancies_data = await ShipModel.get(vacancy)
+            vacancies_data = await VacancyModel.get(vacancy)
             if vacancies_data.status == 'активная вакансия':
                 response_count = len(vacancies_data.responses) if vacancies_data.responses else 0
                 response = VacanciesResponse(
-                    vacancies=Vacancies(**dict(vacancies_data)),
+                    vacancies=VacancyModel(**dict(vacancies_data)),
                     responseCount=ResponseCount(responseCount=response_count),
                 )
                 vacancies_info.append(response)
@@ -135,7 +134,7 @@ async def response_vacancy_id(vacancy_id: PydanticObjectId,
         if not company_info:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
-        vacancy = await ShipModel.get(vacancy_id)
+        vacancy = await VacancyModel.get(vacancy_id)
 
         if not vacancy:
             raise HTTPException(detail='Vacancy not found', status_code=status.HTTP_404_NOT_FOUND)
@@ -229,7 +228,7 @@ async def get_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_curre
         vacancies_info = []
 
         for vacancy in vacancies:
-            vacancies_data = await ShipModel.get(vacancy.id)
+            vacancies_data = await VacancyModel.get(vacancy.id)
 
             if vacancies_data.status == 'Неактуальная вакансия':
                 vacancies_info.append(vacancies_data)
@@ -252,7 +251,7 @@ async def active_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_cu
         if not company_info:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
-        vacancy = await ShipModel.get(vacancy_id)
+        vacancy = await VacancyModel.get(vacancy_id)
 
         await vacancy.update({"$set": {"status": "активная вакансия"}})
 
@@ -277,7 +276,7 @@ async def delete_irrelevant_vacancy(current_user: Annotated[dict, Depends(get_cu
 
         await company_model.update(company, {"$pull": {"vacancies": {"id": vacancy_id}}})
 
-        vacancy = await ShipModel.get(vacancy_id)
+        vacancy = await VacancyModel.get(vacancy_id)
         await vacancy.delete()
 
         return vacancy
@@ -296,7 +295,7 @@ async def close_vacancy(current_user: Annotated[dict, Depends(get_current_user)]
         if not company_info:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
-        vacancy = await ShipModel.get(vacancy_id)
+        vacancy = await VacancyModel.get(vacancy_id)
 
         await vacancy.update({"$set": {"status": "Неактуальная вакансия"}})
 
@@ -318,7 +317,7 @@ async def get_vacancies_by_company(current_user: Annotated[dict, Depends(get_cur
         if not company_info:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная компания не зарегистрирована")
 
-        vacancy = await ShipModel.get(vacancy_id)
+        vacancy = await VacancyModel.get(vacancy_id)
 
         if not vacancy:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная вакансия не найдена")
@@ -330,9 +329,9 @@ async def get_vacancies_by_company(current_user: Annotated[dict, Depends(get_cur
         raise HTTPException(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.put("/vacancies/{vacancy_id}", response_model=ShipRead, status_code=status.HTTP_201_CREATED,
+@router.put("/vacancies/{vacancy_id}", response_model=VacancyRead, status_code=status.HTTP_201_CREATED,
             summary="Редактировать вакансию")
-async def update_vacancies_by_company(request: Ship, vacancy_id: PydanticObjectId,
+async def update_vacancies_by_company(request: VacancyModel, vacancy_id: PydanticObjectId,
                                       current_user: Optional[dict] = Depends(get_current_user)):
     try:
 
@@ -348,7 +347,7 @@ async def update_vacancies_by_company(request: Ship, vacancy_id: PydanticObjectI
             field: value for field, value in request.items()
         }}
 
-        job = await ShipModel.get(vacancy_id)
+        job = await VacancyModel.get(vacancy_id)
 
         if not job:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Данная вакансия не найдена")

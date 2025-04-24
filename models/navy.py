@@ -2,27 +2,13 @@ from beanie import Document, PydanticObjectId
 from pydantic import Field
 from typing import Optional
 
-
 class navy(Document):
-    id: PydanticObjectId = Field(None, alias="_id")
-    ship_name: str
+    vessel_name: Optional[str] = None
     imo: Optional[str] = None
-    ship_type: str
-    year_built: str
-    dwt: str
-    kw: str
-    length: str
-    width: str
-
-
-class moderation_navy(Document):
-    ship_name: str
-    imo: str
-    ship_type: str
-    year_built: str
-    dwt: str
-    kw: str
-    length: str
-    width: str
-    company_id: PydanticObjectId
-    is_active: bool = False
+    ship_type: Optional[str] = None
+    year_built: Optional[str] = None
+    dwt: Optional[str] = None
+    kw: Optional[str] = None
+    length: Optional[str] = None
+    width: Optional[str] = None
+    is_active: Optional[bool] = False

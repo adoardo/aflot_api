@@ -4,9 +4,10 @@ from typing import Optional, List
 
 
 class swims_tariffs(Document):
-    status: str
-    period: str
-    cost: int
+    title: Optional[str]
+    period: Optional[str]
+    cost: Optional[int]
+    description_list: Optional[List[str]] = None
 
 
 class list_description_tariffs(BaseModel):

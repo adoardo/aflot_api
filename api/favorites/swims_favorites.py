@@ -4,7 +4,8 @@ from beanie import PydanticObjectId
 from starlette import status
 from typing import Annotated, Optional, List
 from api.auth.config import get_current_user
-from models import user_model, auth, ship, company_model
+from models import user_model, auth, company_model
+from models.vacancy import vacancy as VacancyModel
 from schemas.favorites_swims.company import CompanyFavoritesSchemas
 
 router = APIRouter()
@@ -24,11 +25,11 @@ async def get_favorite_vacancies(current_user: Annotated[dict, Depends(get_curre
 
         resume = await user_model.get(user.resumeID)
 
-        favorite_vacancy = resume.favorites_vacancies
+        favorite_vacancy = resume.favorite_vacancies
 
         vacancy_list = []
         for vac in favorite_vacancy:
-            vacancy = await ship.get(vac.id)
+            vacancy = await VacancyModel.get(vac.id)
             vacancy_list.append(vacancy)
 
         return vacancy_list
@@ -51,7 +52,7 @@ async def get_favorite_company(current_user: Annotated[dict, Depends(get_current
 
         resume = await user_model.get(user.resumeID)
 
-        favorite_company = resume.favorites_company
+        favorite_company = resume.favorite_companies
 
         company_list = []
         for com in favorite_company:
@@ -60,7 +61,7 @@ async def get_favorite_company(current_user: Annotated[dict, Depends(get_current
             company = await company_model.get(com.id)
 
             for vac in company.vacancies:
-                vacancy = await ship.get(vac.id)
+                vacancy = await VacancyModel.get(vac.id)
 
                 if vacancy.status == 'активная вакансия':
                     count += 1
@@ -94,7 +95,7 @@ async def delete_favorite_company(company_id: PydanticObjectId, current_user: An
 
         resume = await user_model.get(user_info.resumeID)
 
-        await user_model.update(resume, {"$pull": {"favorites_company": {"id": company_id}}})
+        await user_model.update(resume, {"$pull": {"favorite_companies": {"id": company_id}}})
 
         return {"message": f"{company_id} - deleted successfully from favorites"}
 

@@ -23,11 +23,6 @@ class ImageData(BaseModel):
 class NewsSchema(BaseModel):
     title: str
     content: str
-    created_at: date
+    created_at: Optional[date]
     view_count: int
 
-
-class NewsResponse(BaseModel):
-    news: NewsSchema
-    image_info: Optional[ImageInfo] = None
-    image_data: Optional[ImageData] = None

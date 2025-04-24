@@ -23,3 +23,8 @@ class auth(Document):
     last_login: Optional[datetime] = None
     date_joined: datetime
     salt: str
+    token: Optional[str] = None
+    telegram_id: Optional[str] = None
+    vk_id: Optional[str] = None
+    is_vk: Optional[bool] = None
+    is_tg: Optional[bool] = None

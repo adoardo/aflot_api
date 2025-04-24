@@ -10,10 +10,9 @@ class SalarySchema(BaseModel):
 
 
 class Vacancy(BaseModel):
-    id: PydanticObjectId
     position: str
     date_of_departure: Optional[date] = None
-    ship_name: str
+    vessel: str
     salary: Optional[SalarySchema] = None
     contract_duration: str
 
@@ -33,7 +32,7 @@ class News(BaseModel):
     id: PydanticObjectId
     title: str
     content: str
-    created_at: Optional[str]
+    created_at: Optional[date]
     photo_path: Optional[str] = None
     view_count: Optional[int] = None
 

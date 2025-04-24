@@ -3,7 +3,8 @@ from api.auth.config import get_current_user
 from typing import Optional
 from starlette import status
 from .schemas import OffersSailor, OffersCompanyInfo, ResponsesOffers, Response, OfferID
-from models import user_model, auth, ship, company_model
+from models import user_model, auth, company_model
+from models.vacancy import vacancy as VacancyModel
 from beanie import PydanticObjectId
 
 router = APIRouter()
@@ -39,7 +40,7 @@ async def get_offers(current_user: Optional[dict] = Depends(get_current_user)):
 
         for offer_id in resume_info.offers:
             company = await company_model.find_one({"vacancies": offer_id})
-            vacancy = await ship.get(offer_id)
+            vacancy = await VacancyModel.get(offer_id)
 
             data = ResponsesOffers(
                 offers=OffersSailor(**vacancy.dict()),
@@ -69,7 +70,7 @@ async def get_offer_id(offer_id: PydanticObjectId, current_user: Optional[dict] 
         if not user_info:
             return HTTPException(detail="User not found", status_code=status.HTTP_401_UNAUTHORIZED)
 
-        offer = await ship.get(offer_id)
+        offer = await VacancyModel.get(offer_id)
 
         return OfferID(**offer.dict())
 

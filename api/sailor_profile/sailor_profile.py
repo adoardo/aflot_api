@@ -12,6 +12,7 @@ router = APIRouter()
 @router.get("/resume", status_code=status.HTTP_200_OK, response_model=ProfileUserSchemas,
             summary="Резюме моряка")
 async def get_resume(current_user: Annotated[dict, Depends(get_current_user)]):
+
     try:
 
         if current_user is None or current_user['role'] == 'Компания':
@@ -32,10 +33,31 @@ async def get_resume(current_user: Annotated[dict, Depends(get_current_user)]):
     except HTTPException as e:
         return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
 
+@router.get("/resume-full", summary="Полное резюме моряка")
+async def get_full_resume(current_user: Annotated[dict, Depends(get_current_user)]):
+
+    try:
+
+        if current_user is None or current_user['role'] == 'Компания':
+
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+        user_id = current_user.get('id')
+
+        resume_id = await auth.get(user_id)
+
+        resume = await user_model.get(resume_id.resumeID)
+
+        return resume
+
+    except HTTPException as e:
+        return HTTPException(detail=e, status_code=status.HTTP_400_BAD_REQUEST)
+
 
 @router.put('/resume', status_code=status.HTTP_201_CREATED, summary="Изменить резюме моряка")
 async def put_resume_sailor(current_user: Annotated[dict, Depends(get_current_user)],
                             request: ProfileUserSchemas):
+
 
     try:
 

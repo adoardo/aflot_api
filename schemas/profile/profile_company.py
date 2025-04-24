@@ -10,14 +10,14 @@ class CompanyNotification(BaseModel):
 
 
 class CompanyOldSettings(BaseModel):
-    email: EmailStr
+    email: str
     phone_number: str
     telegram: Optional[str]
     notification_settings: Optional[CompanyNotification]
 
 
 class CompanySchema(BaseModel):
-    email: EmailStr
+    email: str
     phone_number: str
     first_name: str
     last_name: str
@@ -25,5 +25,5 @@ class CompanySchema(BaseModel):
     photo_path: Optional[str] = None
     telegram: Optional[str] = None
     company_name: str
-    company_inn: int
+    company_inn: str
     company_address: str

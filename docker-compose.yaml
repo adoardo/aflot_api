@@ -24,30 +24,47 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8000:8000"
-    volumes:
-      - ./api:/api
-      - ./models:/models
-      - ./schemas:/schemas
-    x-develop:
+    #volumes:
+    #  - ./api:/api
+    #  - ./models:/models
+    #  - ./schemas:/schemas
+    develop:
       watch:
-        - action: sync
+        - action: sync+restart
           path: ./api
           target: /api
-        - action: rebuild
-          path: ./api
-          target: /api
+        - action: sync+restart
+          path: ./models
+          target: /models
+        - action: sync+restart
+          path: ./schemas
+          target: /schemas
     networks:
       - mynetwork
     depends_on:
       - mongo
 
   starlette_admin:
-    container_name: starlette_admin
+    container_name: admin
     build:
       context: .
       dockerfile: ./Dockerfile_admin
     ports:
       - "8001:8001"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./translations
+          target: /translations
+        - action: sync+restart
+          path: ./venv/Lib/site-packages/starlette_admin
+          target: /venv/Lib/site-packages/starlette_admin
+        - action: sync+restart
+          path: ./af_admin
+          target: /af_admin
+        - action: sync+restart
+          path: ./admin_app.py
+          target: /admin_app.py
     networks:
       - mynetwork
     depends_on:

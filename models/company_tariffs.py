@@ -2,13 +2,9 @@ from pydantic import BaseModel
 from beanie import Document
 from typing import Optional, List
 
-
-class tariffs(BaseModel):
-    title: str
-    count_publications: int
-    count_possibilities: int
-    price: int
-
-
 class company_tariffs(Document):
-    description: Optional[List[tariffs]] = None
+    title: Optional[str]
+    count_publications: Optional[int]
+    count_possibilities: Optional[int]
+    price: Optional[int]
+    additional: Optional[bool]

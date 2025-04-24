@@ -1,68 +1,45 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import date
 from beanie import PydanticObjectId
 
-
-class ShipRead(BaseModel):
+class VacancyRead(BaseModel):
     id: PydanticObjectId
     position: str
-    ship_name: str
+    vessel: str
 
+class Salary(BaseModel):
+    From: Optional[str] = None
+    To: Optional[str] = None
 
-class ShipSalary(BaseModel):
-    salaryFrom: Optional[str] = None
-    salaryTo: Optional[str] = None
-
-
-class Ship(BaseModel):
+class VacancySchemas(BaseModel):
     position: str
-    salary: Optional[ShipSalary] = None
+    salary_from: Optional[int]
+    salary_to: Optional[int]
     date_of_departure: Optional[date] = date.today()
     contract_duration: str
-    ship_name: str
-    imo: Optional[str] = None
-    ship_type: str
-    year_built: int
-    contact_person: str
-    status: Optional[str] = None
-    email: Optional[EmailStr] = None
-    dwt: int
-    kw: int
-    length: int
-    width: int
-    phone1: str
-    phone2: Optional[str] = None
-
+    contact_person: Optional[str]
+    email: Optional[EmailStr]
+    phone1: Optional[str]
+    phone2: Optional[str]
+    vessel: str
+    responses: Optional[List[PydanticObjectId]]
+    job_offers: Optional[List[PydanticObjectId]]
+    is_publish: Optional[bool] = False
+    is_active: Optional[bool] = False
 
 class ResponseCount(BaseModel):
     responseCount: int
 
-
-class Vacancies(BaseModel):
-    id: PydanticObjectId
-    position: str
-    salary: str
-    date_of_departure: Optional[date] = date.today()
-    contract_duration: str
-    ship_name: str
-    imo: Optional[str] = None
-    ship_type: str
-    year_built: int
-    contact_person: str
-    status: Optional[str] = None
-    email: Optional[EmailStr] = None
-    dwt: int
-    kw: int
-    length: int
-    width: int
-    phone1: str
-    phone2: Optional[str] = None
-
-
 class VacanciesResponse(BaseModel):
-    vacancies: Vacancies
+    vacancies: VacancySchemas
     responseCount: ResponseCount
+
+
+
+
+
+
 
 
 class NavySchemas(BaseModel):
@@ -77,18 +54,6 @@ class NavySchemas(BaseModel):
     width: Optional[str] = None
 
 
-class CompanyNavySchemas(BaseModel):
-    id: Optional[PydanticObjectId] = None
-    ship_name: Optional[str] = None
-    imo: Optional[str] = None
-    ship_type: Optional[str] = None
-    year_built: Optional[str] = None
-    dwt: Optional[str] = None
-    kw: Optional[str] = None
-    length: Optional[str] = None
-    width: Optional[str] = None
-
-
 class ResponseNavySchemas(BaseModel):
-    companyNavy: List[CompanyNavySchemas] = None
+    companyNavy: List[NavySchemas] = None
     navy: List[NavySchemas] = None

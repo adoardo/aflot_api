@@ -3,7 +3,7 @@ from starlette.responses import JSONResponse
 from starlette import status
 from .schemas import NewShipSchema, MyNavy, ResponseMyNavy
 from beanie import PydanticObjectId
-from models import auth, company_model, moderation_navy, navy
+from models import auth, company_model, navy
 from schemas.profile.profile_company import CompanyOldSettings
 from typing import Optional
 from api.auth.config import get_current_user
@@ -231,7 +231,7 @@ async def add_my_ship(request: NewShipSchema, current_user: Optional[dict] = Dep
 
         moderation_navy_obj = moderation_navy(
             company_id=company_info.resumeID,
-            ship_name=request.ship_name,
+            vessel_name=request.vessel_name,
             imo=request.imo,
             ship_type=request.ship_type,
             year_built=request.year_built,

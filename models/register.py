@@ -6,16 +6,13 @@ from typing import List
 from beanie import PydanticObjectId, Indexed, Document
 
 
-class CompanyNavy(BaseModel):
-    id: PydanticObjectId
-    ship_name: str
-    imo: Optional[str] = None
-    ship_type: str
-    year_built: str
-    dwt: str
-    kw: str
-    length: str
-    width: str
+class WorkExperienceNew(BaseModel):
+    shipowner: Optional[str] = None
+    type_of_vessel: Optional[str] = None
+    ships_name: Optional[str] = None
+    position: Optional[str] = None
+    period_of_work_from: Optional[date] = None
+    period_of_work_to: Optional[date] = None
 
 
 class NotificationSettings(BaseModel):
@@ -37,6 +34,10 @@ class History(BaseModel):
 class FavoritesCompany(BaseModel):
     id: PydanticObjectId
 
+class BlackList(BaseModel):
+    sailor_id: PydanticObjectId
+    created_at: datetime = datetime.now()
+    comment: Optional[str]
 
 class FavoritesVacancies(BaseModel):
     id: PydanticObjectId
@@ -44,31 +45,31 @@ class FavoritesVacancies(BaseModel):
 
 class MainDocumentsUsers(BaseModel):
     foreign_passport: Optional[date] = None
-    seafarers_ID_card: Optional[date] = None
+    seafarers_ID_card: Optional[str] = None
     diploma: Optional[date] = None
-    initial_safety_training: Optional[date] = None
-    designated_safeguarding_responsibilities: Optional[date] = None
-    dinghy_and_raft_specialist: Optional[date] = None
-    fighting_fire_with_an_expanded_program: Optional[date] = None
-    providing_first_aid: Optional[date] = None
-    prevention_of_marine_pollution: Optional[date] = None
-    tanker_certificate: Optional[date] = None
-    occupational_health_and_safety: Optional[date] = None
-    medical_commission: Optional[date] = None
+    initial_safety_training: Optional[str] = None
+    designated_safeguarding_responsibilities: Optional[str] = None
+    dinghy_and_raft_specialist: Optional[str] = None
+    fighting_fire_with_an_expanded_program: Optional[str] = None
+    providing_first_aid: Optional[str] = None
+    prevention_of_marine_pollution: Optional[str] = None
+    tanker_certificate: Optional[str] = None
+    occupational_health_and_safety: Optional[str] = None
+    medical_commission: Optional[str] = None
 
 
 class ShipwrightsPapers(BaseModel):
     gmssb: Optional[date] = None
-    eknis: Optional[date] = None
+    eknis: Optional[str] = None
     rlt: Optional[date] = None
-    sarp: Optional[date] = None
+    sarp: Optional[str] = None
 
 
 class AdditionalDocuments(BaseModel):
     isolation_breathing_apparatus: Optional[date] = None
-    naval_training: Optional[date] = None
+    naval_training: Optional[str] = None
     transportation_safety: Optional[date] = None
-    tanker_certificate: Optional[date] = None
+    tanker_certificate: Optional[str] = None
 
 
 class WorkExperience(BaseModel):
@@ -98,11 +99,12 @@ class user_model(Document):
     positions: Optional[List[str]] = None
     worked: Optional[List[str]] = None
     status: Optional[str] = None
+    salary: Optional[float] = 0
     balance: Optional[float] = 0
     autofill: Optional[bool] = False
     payment_history: Optional[List[History]] = None
-    favorites_company: Optional[List[FavoritesCompany]] = None
-    favorites_vacancies: Optional[List[FavoritesVacancies]] = None
+    favorite_companies: Optional[List[PydanticObjectId]] = Field(default_factory=list)
+    favorite_vacancies: Optional[List[PydanticObjectId]] = Field(default_factory=list)
     notification_settings: NotificationSettings
     main_documents: Optional[MainDocumentsUsers] = None
     shipwrights_papers: Optional[ShipwrightsPapers] = None
@@ -110,6 +112,13 @@ class user_model(Document):
     working_experience: Optional[WorkExperience] = None
     responses: Optional[List[PydanticObjectId]] = Field(default_factory=list)
     offers: Optional[List[PydanticObjectId]] = None
+    working_experience_new: Optional[List[WorkExperienceNew]] = []
+    media_files: Optional[List[str]] = None
+    created_at: datetime = datetime.now()
+    updated_at: datetime = datetime.now()
+
+    def process_item_list(positions: List[str]):
+        pass
 
     async def create_default(self):
         self.main_documents = MainDocumentsUsers(
@@ -141,36 +150,33 @@ class user_model(Document):
             tanker_certificate=None,
         )
 
-        self.working_experience = WorkExperience(
-            shipowner=None,
-            type_of_vessel=None,
-            ships_name=None,
-            position=None,
-            period_of_work_from=None,
-            period_of_work_to=None,
-        )
 
 
 class company_model(Document):
     __database__ = db
 
     id: PydanticObjectId = Field(None, alias="_id")
-    email: Optional[EmailStr] = None
+    email: Optional[str]
     phone_number: Optional[str] = None
+    phone1: Optional[str] = None
+    phone2: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     patronymic: Optional[str] = None
+    f_i_o: Optional[str] = None
     photo_path: Optional[str] = None
     telegram: Optional[str] = None
     company_name: Optional[str] = None
-    company_inn: Indexed(int, unique=True)
+    company_inn: Indexed(str, unique=True)
     company_address: Optional[str] = None
     autofill: Optional[bool] = False
     payment_history: Optional[List[History]] = None
     balance: Optional[float] = 0
-    vessel: Optional[List[CompanyNavy]] = None
+    vessel: Optional[List[PydanticObjectId]] = []
     favorites_resume: Optional[List[PydanticObjectId]] = None
-    black_list_resume: Optional[List[PydanticObjectId]] = None
+    black_list: Optional[List[BlackList]] = None
     vacancies: Optional[List[PydanticObjectId]] = None
     notification_settings: NotificationSettings
     count_publications: int = Field(default=0)
+    created_at: datetime = datetime.now()
+    updated_at: datetime = datetime.now()

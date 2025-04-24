@@ -4,7 +4,7 @@ from beanie import PydanticObjectId
 
 
 class NewShipSchema(BaseModel):
-    ship_name: str
+    vessel_name: str
     imo: str
     ship_type: str
     year_built: str
@@ -16,7 +16,7 @@ class NewShipSchema(BaseModel):
 
 class MyNavy(BaseModel):
     id: PydanticObjectId
-    ship_name: str
+    vessel_name: str
     imo: str
     ship_type: str
     year_built: str
