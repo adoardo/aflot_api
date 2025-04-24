@@ -114,6 +114,7 @@ class user_model(Document):
     offers: Optional[List[PydanticObjectId]] = None
     working_experience_new: Optional[List[WorkExperienceNew]] = []
     media_files: Optional[List[str]] = None
+    view_count: Optional[int] = None
     created_at: datetime = datetime.now()
     updated_at: datetime = datetime.now()
 

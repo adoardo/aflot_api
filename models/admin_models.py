@@ -48,32 +48,35 @@ class Auth(Document):
     is_vk = BooleanField()
     is_tg = BooleanField()
 
+class Salary(EmbeddedDocument):
+    From = StringField()
+    To = StringField()
+
 class Vacancy(Document):
-    position = StringField()
-    salary_from = IntField()
-    salary_to = IntField()
+    position = StringField(verbose_name="Позиция")
+    salary = Salary
     date_of_departure = DateField()
-    date_of_departure_from = DateField()
-    date_of_departure_to = DateField()
     contract_duration = StringField()
+    vessel_name = StringField()
+    imo = StringField()
+    ship_type = StringField()
+    year_built = IntField()
     contact_person = StringField()
     email = EmailField()
+    dwt = IntField()
+    kw = IntField()
+    length = IntField()
+    width = IntField()
     phone1 = StringField()
     phone2 = StringField()
-    vessel = StringField()
     responses = ListField(ObjectIdField())
     job_offers = ListField(ObjectIdField())
-    approved_responses = ListField(ObjectIdField())
-    approved_offers = ListField(ObjectIdField())
     is_publish = BooleanField(default=False)
     is_active = BooleanField(default=False)
-    created_at = DateTimeField()
-    view_count = IntField()
+
 
 class BlackList(EmbeddedDocument):
-    sailor_id = ObjectIdField()
-    created_at = DateTimeField()
-    comment = StringField()
+    id = ObjectIdField()
 
 
 class Favorites(EmbeddedDocument):
@@ -167,14 +170,11 @@ class UserModel(Document):
     positions = ListField(StringField())
     worked = ListField(StringField())
     status = StringField()
-    salary = FloatField()
     balance = FloatField()
     autofill = BooleanField()
     payment_history = ListField(EmbeddedDocumentField(History))
-    favorites_company = ListField(ObjectIdField())
-    favorites_vacancies = ListField(ObjectIdField())
-    favorite_companies = ListField(ObjectIdField())
-    favorite_vacancies = ListField(ObjectIdField())
+    favorites_company = ListField(EmbeddedDocumentField(FavoritesCompany))
+    favorites_vacancies = ListField(EmbeddedDocumentField(FavoritesVacancies))
     notification_settings = EmbeddedDocumentField(NotificationSettings)
     main_documents = EmbeddedDocumentField(MainDocumentsUsers)
     shipwrights_papers = EmbeddedDocumentField(ShipwrightsPapers)
@@ -185,8 +185,6 @@ class UserModel(Document):
     working_experience_new = ListField(EmbeddedDocumentField(WorkExperienceNew))
     view_count = FloatField()
     media_files = ListField(StringField())
-    created_at = DateTimeField()
-    updated_at = DateTimeField()
 
     def save(self, *args, **kwargs):
         self.photo.read()
@@ -279,12 +277,10 @@ class CompanyModel(Document):
     balance = FloatField(default=0.0)
     vessel = ListField(StringField())
     favorites_resume = ListField(ObjectIdField())
-    black_list = ListField(EmbeddedDocumentField(BlackList))
+    black_list_resume = ListField(ObjectIdField())
     vacancies = ListField(ObjectIdField())
     notification_settings = EmbeddedDocumentField(NotificationSettings)
     count_publications = IntField()
-    created_at = DateTimeField()
-    updated_at = DateTimeField()
 
     def save(self, *args, **kwargs):
         self.photo.read()
@@ -452,10 +448,9 @@ class RealHistory(Document):
 
 
 class SwimsTariffs(Document):
-    title = StringField()
+    status = StringField()
     period = StringField()
     cost = IntField()
-    description_list = ListField(StringField())
 
 
 class ListDescriptionTariffs(EmbeddedDocument):
@@ -476,11 +471,7 @@ class Tariffs(EmbeddedDocument):
 
 
 class CompanyTariffs(Document):
-    title = StringField()
-    count_publications = IntField()
-    count_possibilities = IntField()
-    price = IntField()
-    additional = BooleanField(default=False)
+    description = ListField(EmbeddedDocumentField(Tariffs))
 
 
 class Navy(Document):
@@ -499,4 +490,3 @@ class SettingsGlobal(Document):
     option_name = StringField()
     option_slug = StringField()
     option_values = ListField(StringField())
-

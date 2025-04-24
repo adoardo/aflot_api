@@ -10,4 +10,6 @@ from .navy import navy
 from .payment_history import paymentHistory
 from .global_settings import settings_global
 from .vacancy import vacancy
-from .notifications import notifications
+from .company_viewers import company_viewers
+from .sailor_viewers import sailor_viewers
+from .user_agents import user_agents

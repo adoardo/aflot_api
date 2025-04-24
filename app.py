@@ -6,7 +6,7 @@ from starlette.staticfiles import StaticFiles
 from api.auth.config import get_current_user_for_socket
 from models import (db, user_model, company_model, auth, news_model, contact, feedback,
                     real_history, swims_tariffs, description_tariffs, company_tariffs, navy,
-                    paymentHistory, settings_global, vacancy, notifications)
+                    paymentHistory, settings_global, vacancy, company_viewers, sailor_viewers, user_agents)
 from api.api_routers import api_router
 from datetime import datetime
 import asyncio
